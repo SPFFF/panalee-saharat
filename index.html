@@ -315,7 +315,7 @@ img{max-width:100%;display:block}
 /* ---- v8 phones & portrait tablets: a real envelope spanning the screen edge to edge, sitting on the paper; the die-cut card rises well out of it ---- */
 @media (max-width:899px),(orientation:portrait){
  #gate .gbg{background:linear-gradient(180deg,rgba(240,226,224,.5),rgba(244,241,234,.2) 50%,rgba(214,226,204,.45)),url(img/paper.webp) 0 0/420px auto,#F4F1EA}
- #gate .env{top:57%;bottom:auto;width:calc(var(--sw)*.86);aspect-ratio:9/5;transform:translate(-50%,-50%);border-radius:6px;overflow:visible;box-shadow:0 46px 70px -40px rgba(40,60,40,.6),0 10px 22px -14px rgba(40,60,40,.35)}
+ #gate .env{top:57%;bottom:auto;width:calc(var(--sw)*.86);aspect-ratio:7/5;transform:translate(-50%,-50%);border-radius:6px;overflow:visible;box-shadow:0 46px 70px -40px rgba(40,60,40,.6),0 10px 22px -14px rgba(40,60,40,.35)}
  #gate.open .env{transform:translate(-50%,-50%)}
  #gate .card{left:6%;right:6%;top:4%}
  #gate .gname{top:calc(var(--cy) + 21%);font-size:clamp(1.5rem,7vw,2rem)}
@@ -333,7 +333,7 @@ img{max-width:100%;display:block}
 /* big screens: the same envelope as on phones, just capped in size so the card still fits above it */
 @media (min-width:900px) and (orientation:landscape){
  #gate .gbg{background:linear-gradient(180deg,rgba(240,226,224,.5),rgba(244,241,234,.2) 50%,rgba(214,226,204,.45)),url(img/paper.webp) 0 0/420px auto,#F4F1EA}
- #gate .env,#gate.open .env{top:57%;bottom:auto;width:min(540px,62vh);aspect-ratio:9/5;transform:translate(-50%,-50%)}
+ #gate .env,#gate.open .env{top:57%;bottom:auto;width:min(500px,58vh);aspect-ratio:7/5;transform:translate(-50%,-50%)}
  #gate .gname{top:calc(var(--cy) + 21%);font-size:clamp(1.5rem,3.2vh,2rem)}
 }
 /* ---- v10: after the pop, the card glides up on its own and grows into the big frame on the page; the envelope blurs away ---- */
@@ -2166,8 +2166,9 @@ var __spreadValues = (a, b) => {
       if (EMB) {
         const v = Object.fromEntries(fd.entries());
         for (const k in gin) gin[k].value = v["entry." + k] || "";
-        st.textContent = "\u2713 \u0E2A\u0E48\u0E07\u0E04\u0E33\u0E15\u0E2D\u0E1A\u0E41\u0E25\u0E49\u0E27";
-        dm.textContent = "\u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E04\u0E33\u0E15\u0E2D\u0E1A \u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E41\u0E25\u0E49\u0E27 (\u0E16\u0E49\u0E32\u0E21\u0E35\u0E2B\u0E19\u0E49\u0E32\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E02\u0E2D\u0E07 Google \u0E40\u0E1B\u0E34\u0E14\u0E02\u0E36\u0E49\u0E19\u0E21\u0E32 \u0E1B\u0E34\u0E14\u0E44\u0E14\u0E49\u0E40\u0E25\u0E22)";
+        st.textContent = "\u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E04\u0E33\u0E15\u0E2D\u0E1A\u0E04\u0E48\u0E30";
+        dm.textContent = "\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E43\u0E2B\u0E49\u0E41\u0E19\u0E48\u0E43\u0E08\u0E27\u0E48\u0E32\u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E01\u0E14\u0E2A\u0E48\u0E07\u0E1C\u0E48\u0E32\u0E19 LINE \u0E44\u0E1B\u0E17\u0E35\u0E48\u0E41\u0E0A\u0E17\u0E02\u0E2D\u0E07\u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07";
+        row.hidden = false;
       } else fetch(SHEET_URL, { method: "POST", mode: "no-cors", body: fd }).then(() => {
         st.textContent = "\u2713 \u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E04\u0E33\u0E15\u0E2D\u0E1A\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E40\u0E23\u0E35\u0E22\u0E1A\u0E23\u0E49\u0E2D\u0E22\u0E41\u0E25\u0E49\u0E27";
       }).catch(fail);
