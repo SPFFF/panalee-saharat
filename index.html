@@ -12,10 +12,8 @@
 </head>
 <body>
 <title>Panalee &amp; Saharat</title>
-<link rel="preload" as="image" href="img/emboss_g57.webp" fetchpriority="high">
 <link rel="preload" as="image" href="img/seal_iv.webp" fetchpriority="high">
 <link rel="preload" as="image" href="img/flowerbed.webp" fetchpriority="high">
-<link rel="preload" as="image" href="img/emboss_mask57.webp" crossorigin="anonymous">
 <style>
 /* Layout: phone-sized stage on every screen. An embossed sage-green envelope opens on a burst of light into a flower garden; the garden's lily arbour stays in place while the invitation scrolls over a soft paper veil. Colours and type follow the original card. */
 @font-face{font-family:"Athiti";font-weight:500;font-display:swap;src:url(fonts/athiti-thai-500-normal.woff2) format("woff2");unicode-range:U+0E01-0E5B,U+200C-200D,U+25CC}
@@ -142,7 +140,7 @@ img{max-width:100%;display:block}
 #gate.open .lit{opacity:1}
 #gate.press .leak{opacity:.8;transition:opacity .35s ease}
 #gate.open .leak{opacity:0;transition:opacity .5s ease .2s}
-.pc{position:absolute;inset:0;background:#93A886 url(img/emboss_g57.webp) center/cover no-repeat}
+.pc{position:absolute;inset:0;background:#93A886 none center/cover no-repeat}
 .pc::after{content:"";position:absolute;inset:0;background:url(img/paper.webp);background-size:300px auto;mix-blend-mode:multiply;opacity:.45}
 .pc::before{content:"";position:absolute;inset:0;z-index:1}
 .side.l{clip-path:polygon(0 0,50% var(--cy),0 100%)}
@@ -161,7 +159,7 @@ img{max-width:100%;display:block}
 .flapsh.t{clip-path:polygon(0 0,100% 0,50% calc(var(--cy) + 2.4%));transition:opacity .4s}
 .flapsh.b{clip-path:polygon(0 100%,50% calc(var(--cy) - 1.6%),100% 100%);opacity:.6}
 .creases{position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none}
-.shim{position:absolute;inset:0;z-index:7;pointer-events:none;-webkit-mask:url(img/emboss_mask57.webp) center/cover no-repeat;mask:url(img/emboss_mask57.webp) center/cover no-repeat;background:linear-gradient(115deg,transparent 32%,rgba(232,196,120,.9) 46%,rgba(255,240,200,1) 50%,rgba(222,178,98,.85) 54%,transparent 66%) 0 0/300% 300% no-repeat;animation:shim 4.6s ease-in-out infinite;opacity:.7}
+.shim{position:absolute;inset:0;z-index:7;pointer-events:none;-webkit-mask:none center/cover no-repeat;mask:none center/cover no-repeat;background:linear-gradient(115deg,transparent 32%,rgba(232,196,120,.9) 46%,rgba(255,240,200,1) 50%,rgba(222,178,98,.85) 54%,transparent 66%) 0 0/300% 300% no-repeat;animation:shim 4.6s ease-in-out infinite;opacity:.7}
 @keyframes shim{0%{background-position:110% 110%}60%,100%{background-position:-10% -10%}}
 .glints{position:absolute;inset:0;z-index:7;pointer-events:none}
 .glints i{position:absolute;width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(closest-side,#FFF1C4,rgba(236,186,96,.8) 45%,rgba(230,170,80,0));opacity:0;animation:glint var(--t) ease-in-out var(--d) infinite}
@@ -357,6 +355,7 @@ img{max-width:100%;display:block}
 @keyframes bedsway{to{rotate:calc(var(--r) + 7deg)}}
 .gbed::after{content:"";position:absolute;inset:0;background:radial-gradient(46% 26% at 50% 60%,rgba(255,253,246,.55),rgba(255,253,246,0) 70%);pointer-events:none}
 @media (prefers-reduced-motion:reduce){.gbed img.sw{animation:none}}
+#gate .shim{display:none!important}
 .parents2{font:600 clamp(.74rem,3.35vw,.95rem)/1.7 var(--f-thai);color:var(--ink);margin:0;white-space:nowrap;letter-spacing:-.005em}
 .invite2{font:500 clamp(.74rem,3.35vw,.95rem)/1.7 var(--f-thai);color:var(--ink-2);margin:1.1rem 0 0;white-space:nowrap}
 #invite{padding-top:4.5rem}
@@ -1110,7 +1109,9 @@ var __spreadValues = (a, b) => {
   function fxReveal() {
     if (fxT0 === Infinity) {
       fxT0 = performance.now();
-      calmDown();
+      burst(W / 2, H * 0.32, SMALL() ? 34 : 44);
+      release(W * 0.5, H * 0.42, 2);
+      setTimeout(calmDown, 2600);
     }
   }
   function loop(t) {
@@ -1139,8 +1140,7 @@ var __spreadValues = (a, b) => {
       p.y += p.vy * dt;
       drawPetal(p);
       if (!p.b && (p.y > H + 30 || p.x < -40 || p.x > W + 40)) {
-        if (calm && ambient() > (SMALL() ? 3 : 5)) petals.splice(i, 1);
-        else Object.assign(p, petal(), { y: -20 });
+        petals.splice(i, 1);
       }
     }
     cx.globalAlpha = 1;
@@ -1165,7 +1165,7 @@ var __spreadValues = (a, b) => {
       b.x += Math.cos(b.a) * b.sp * dt;
       b.y += Math.sin(b.a) * b.sp * dt + Math.sin(b.ph * 2) * 0.25;
       if (t >= fxT0) drawFly(b);
-      if ((b.leave || flies.length > 1) && (b.x < -40 || b.x > W + 40 || b.y < -40 || b.y > H + 40)) flies.splice(i, 1);
+      if ((b.leave || flies.length > 2) && (b.x < -40 || b.x > W + 40 || b.y < -40 || b.y > H + 40)) flies.splice(i, 1);
     }
     requestAnimationFrame(loop);
   }
@@ -1175,10 +1175,11 @@ var __spreadValues = (a, b) => {
     if (calm || RM) return;
     calm = true;
     director();
+    setTimeout(drift, 1500);
   }
   function director() {
     const live = flies.filter((b) => !b.leave);
-    const want = live.length ? 0 : 1;
+    const want = [0, 1, 1, 2, 2, 1][Math.random() * 6 | 0];
     if (live.length > want) live.slice(want).forEach((b) => b.leave = true);
     else for (let i = live.length; i < want; i++) {
       const s = Math.random() < 0.5;
@@ -1187,11 +1188,21 @@ var __spreadValues = (a, b) => {
       b.sp = 1 + Math.random() * 0.4;
       flies.push(b);
     }
-    setTimeout(director, want ? 9e3 + Math.random() * 7e3 : 5e3 + Math.random() * 5e3);
+    setTimeout(director, 7e3 + Math.random() * 7e3);
+  }
+  function drift() {
+    if (!document.hidden) {
+      const n = Math.random() < 0.6 ? 1 : 2;
+      for (let i = 0; i < n; i++) {
+        const p = petal(Math.random() * W, -20 - Math.random() * 60);
+        petals.push(p);
+      }
+    }
+    setTimeout(drift, 3500 + Math.random() * 4e3);
   }
   function release(x, y, n) {
     if (RM) return;
-    n = Math.min(n, Math.max(0, 1 - flies.filter((b) => !b.leave).length));
+    n = Math.min(n, Math.max(0, 2 - flies.filter((b) => !b.leave).length));
     for (let i = 0; i < n; i++) flies.push(fly(x, y, true));
   }
   function wrapA(a) {
@@ -1311,7 +1322,7 @@ var __spreadValues = (a, b) => {
   }
   const at = (ms, fn) => setTimeout(fn, ms);
   {
-    const imgs = ["img/emboss_g57.webp", "img/seal_iv.webp", "img/emboss_mask57.webp"].map((s) => {
+    const imgs = ["img/seal_iv.webp"].map((s) => {
       const i = new Image();
       i.src = s;
       return i.decode ? i.decode().catch(() => {
