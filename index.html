@@ -356,14 +356,6 @@ img{max-width:100%;display:block}
 .gbed::after{content:"";position:absolute;inset:0;background:radial-gradient(46% 26% at 50% 60%,rgba(255,253,246,.55),rgba(255,253,246,0) 70%);pointer-events:none}
 @media (prefers-reduced-motion:reduce){.gbed img.sw{animation:none}}
 #gate .shim{display:none!important}
-.langsw{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:max(12px,calc((100vw - var(--sw))/2 + 12px));z-index:95;display:flex;padding:3px;border-radius:999px;background:rgba(255,253,246,.82);box-shadow:0 4px 14px -6px rgba(60,70,50,.45),inset 0 0 0 1px rgba(150,140,110,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-.langsw button{border:0;background:none;font:600 .78rem/1 var(--f-serif);letter-spacing:.08em;color:var(--ink-2);padding:.45rem .7rem;border-radius:999px;cursor:pointer}
-.langsw button[aria-pressed=true]{background:var(--ink);color:#F7F4EC}
-html.en .parents2,html.en .invite2{white-space:normal}
-html.en .th-sub:empty{display:none}
-html.en .ring text{font-size:27px;letter-spacing:.02em}
-html.en #tl .ev p{white-space:normal;font-size:clamp(.72rem,3.1vw,.88rem)}
-html.en .parents2{font-size:clamp(.72rem,3.2vw,.9rem)}
 .parents2{font:600 clamp(.74rem,3.35vw,.95rem)/1.7 var(--f-thai);color:var(--ink);margin:0;white-space:nowrap;letter-spacing:-.005em}
 .invite2{font:500 clamp(.74rem,3.35vw,.95rem)/1.7 var(--f-thai);color:var(--ink-2);margin:1.1rem 0 0;white-space:nowrap}
 #invite{padding-top:4.5rem}
@@ -1166,8 +1158,8 @@ var __spreadValues = (a, b) => {
       if (b.y > H - m) b.a += (-Math.PI / 2 - wrapA(b.a)) * 0.02;
       if (b.leave) {
         const ex = b.x < W / 2 ? -80 : W + 80;
-        const ta2 = Math.atan2(b.y * 0.2 - b.y * 0.1, ex - b.x);
-        b.a += wrapA(ta2 - b.a) * 0.05 * dt;
+        const ta = Math.atan2(b.y * 0.2 - b.y * 0.1, ex - b.x);
+        b.a += wrapA(ta - b.a) * 0.05 * dt;
         b.sp = Math.max(b.sp, 1.3);
       } else if (b.sp > 1.4) b.sp *= 0.985;
       b.x += Math.cos(b.a) * b.sp * dt;
@@ -1392,9 +1384,9 @@ var __spreadValues = (a, b) => {
     gate.classList.add("grow");
     const h = hf.getBoundingClientRect();
     const tw = h.width * 641 / 593, s = tw / r.width, th = r.height * s;
-    const tx2 = h.left + h.width / 2 - tw / 2, ty = h.top + h.height / 2 - th / 2;
+    const tx = h.left + h.width / 2 - tw / 2, ty = h.top + h.height / 2 - th / 2;
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      g.style.transform = "translate(".concat(tx2, "px,").concat(ty, "px) scale(").concat(s, ")");
+      g.style.transform = "translate(".concat(tx, "px,").concat(ty, "px) scale(").concat(s, ")");
     }));
     at(1700, () => {
       root.classList.add("quick");
@@ -1516,31 +1508,17 @@ var __spreadValues = (a, b) => {
   const ARC = ["#tp1", "#tp2"].map((id) => {
     const g = $(id), p = document.getElementById(g.dataset.path), NS = "http://www.w3.org/2000/svg";
     const parts = g.dataset.text.match(/[^\u0E31\u0E34-\u0E3A\u0E47-\u0E4E][\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]*/g) || [];
-    let els = [];
-    function build(str) {
-      els.forEach((e) => e.remove());
-      const ps = /[\u0E00-\u0E7F]/.test(str) ? str.match(/[^\u0E31\u0E34-\u0E3A\u0E47-\u0E4E][\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]*/g) || [] : str.split("");
-      els = ps.map((s) => {
-        const e = document.createElementNS(NS, "text");
-        e.textContent = s.replace(/ /g, "\xA0");
-        e.setAttribute("text-anchor", "middle");
-        g.appendChild(e);
-        return e;
-      });
-    }
-    build(g.dataset.text);
+    const els = parts.map((s) => {
+      const e = document.createElementNS(NS, "text");
+      e.textContent = s.replace(/ /g, "\xA0");
+      e.setAttribute("text-anchor", "middle");
+      g.appendChild(e);
+      return e;
+    });
     let ws = [], tot = 0;
     function measure() {
-      els.forEach((e) => e.style.fontSize = "");
       ws = els.map((e) => e.getComputedTextLength());
       tot = ws.reduce((a, b) => a + b, 0);
-      const L = p.getTotalLength();
-      if (tot > L * 0.9 && els.length) {
-        const k = L * 0.9 / tot, fs = parseFloat(getComputedStyle(els[0]).fontSize) * k;
-        els.forEach((e) => e.style.fontSize = fs + "px");
-        ws = els.map((e) => e.getComputedTextLength());
-        tot = ws.reduce((a, b) => a + b, 0);
-      }
     }
     function place(f) {
       const L = p.getTotalLength();
@@ -1552,7 +1530,7 @@ var __spreadValues = (a, b) => {
       });
       g._f = f;
     }
-    return { measure, place, g, build };
+    return { measure, place, g };
   });
   function arcSet(f1, f2) {
     ARC[0].place(f1);
@@ -1560,14 +1538,6 @@ var __spreadValues = (a, b) => {
   }
   ARC.forEach((a) => a.measure());
   arcSet(0.5, 0.5);
-  window.__arcText = (ts) => {
-    var _a, _b;
-    ARC.forEach((a, i) => {
-      a.build(ts[i]);
-      a.measure();
-    });
-    arcSet((_a = ARC[0].g._f) != null ? _a : 0.5, (_b = ARC[1].g._f) != null ? _b : 0.5);
-  };
   (document.fonts && document.fonts.ready || Promise.resolve()).then(() => {
     ARC.forEach((a) => a.measure());
     arcSet(ARC[0].g._f, ARC[1].g._f);
@@ -1671,19 +1641,19 @@ var __spreadValues = (a, b) => {
     hg.innerHTML = '<g filter="url(#kbrush)" fill="'.concat(FILL, '">\n  <path d="M-16 -3 C -16 -10, -15 -17, -13 -21 C -9 -19, -6 -16, -3 -14 Z M6 -15 C 9 -17, 12 -20, 15 -21 C 17 -16, 18 -10, 18 -3Z"/>\n  <ellipse cx="1.5" cy="1" rx="18" ry="15.2"/>\n </g>\n <path d="M-12.4 -17.4 q2 1.6 3.4 3 M14 -17.6 q-1.6 1.8 -2.6 3.2" fill="none" stroke="#E2A3A8" stroke-width="2" stroke-linecap="round"/>\n <path d="M-1 -12.6 l.6 4 M2.6 -13.6 l.4 4.4 M10.6 -13 l-.4 4" fill="none" stroke="').concat(STRIPE, '" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>\n <path d="M6.2 -10 C 4.6 -5, 3.4 -1, 3 3 L 12 3 C 11.4 -1, 9.6 -5, 7.8 -10 Z" fill="').concat(WHITE, '"/>\n <ellipse cx="7.8" cy="7" rx="8.6" ry="6" fill="').concat(WHITE, '"/>\n <g filter="url(#kwob)" fill="none" stroke="').concat(INK, '" stroke-linecap="round" stroke-linejoin="round">\n  <g class="eo" stroke="none">\n   <circle cx="1.6" cy="-1.4" r="3.6" fill="#E3A94C" stroke="').concat(INK, '" stroke-width="1.1"/><ellipse cx="1.9" cy="-1.3" rx="1.3" ry="2.4" fill="#2B241D"/><circle cx="2.6" cy="-2.6" r=".9" fill="#fff"/>\n   <circle cx="12.6" cy="-1.4" r="3.1" fill="#E3A94C" stroke="').concat(INK, '" stroke-width="1.1"/><ellipse cx="12.9" cy="-1.3" rx="1.1" ry="2.1" fill="#2B241D"/><circle cx="13.5" cy="-2.5" r=".8" fill="#fff"/>\n  </g>\n  <g class="ec" stroke-width="1.6" style="display:none"><path d="M-1.6 -.6 q3.2 2.4 6.4 0 M9.8 -.6 q2.8 2.2 5.6 0"/></g>\n  <g class="eh" stroke-width="1.6" style="display:none"><path d="M-1.6 .4 q3.2 -3.8 6.4 0 M9.8 .4 q2.8 -3.6 5.6 0"/></g>\n  <path d="M6.6 3.4 l2.4 0 l-1.2 1.5z" fill="#C98E86" stroke="#C98E86" stroke-width="1"/>\n  <path d="M5.4 6.4 q1.6 2 3 0 q1.4 2 3 0" stroke-width="1.3"/>\n  <path d="M17.6 4 l7.4 -1.4 M17.6 6.8 l7 1 M17 9.2 l6 2" stroke-width="1" opacity=".8"/>\n  <path d="M-16.6 4 l-5 -.4 M-16.4 6.6 l-4.6 1" stroke-width="1" opacity=".7"/>\n </g>\n <ellipse class="bl" cx="-3" cy="6.2" rx="3" ry="1.7" fill="#F0B4B4" opacity=".45"/>\n <ellipse class="bl" cx="16" cy="6.4" rx="2" ry="1.4" fill="#F0B4B4" opacity=".45"/>');
     const eyes = { o: hg.querySelector(".eo"), c: hg.querySelector(".ec"), h: hg.querySelector(".eh") }, blush = [...hg.querySelectorAll(".bl")];
     const D = Math.PI / 180, lerp = (a, b, k) => a + (b - a) * k;
-    function ik(rx, ry, tx2, ty, a, b, bend) {
-      let dx = tx2 - rx, dy = ty - ry, d = Math.hypot(dx, dy);
+    function ik(rx, ry, tx, ty, a, b, bend) {
+      let dx = tx - rx, dy = ty - ry, d = Math.hypot(dx, dy);
       const mx = a + b - 0.01;
       if (d > mx) {
         dx *= mx / d;
         dy *= mx / d;
-        tx2 = rx + dx;
+        tx = rx + dx;
         ty = ry + dy;
         d = mx;
       }
       d = Math.max(d, Math.abs(a - b) + 0.5);
       const base = Math.atan2(dy, dx), c = Math.max(-1, Math.min(1, (a * a + d * d - b * b) / (2 * a * d))), ang = base + bend * Math.acos(c);
-      return [rx + Math.cos(ang) * a, ry + Math.sin(ang) * a, tx2, ty];
+      return [rx + Math.cos(ang) * a, ry + Math.sin(ang) * a, tx, ty];
     }
     const f = (n) => n.toFixed(1);
     const toe = [];
@@ -1823,11 +1793,11 @@ var __spreadValues = (a, b) => {
           K.until = now + 2500;
         }
       }
-      let tx2 = K.x, ty = K.y, want = 0, pose = "sit";
+      let tx = K.x, ty = K.y, want = 0, pose = "sit";
       if (K.mode === "play") {
-        tx2 = Math.max(minX, Math.min(maxX, pointer.x));
+        tx = Math.max(minX, Math.min(maxX, pointer.x));
         ty = Math.max(minY, Math.min(maxY, pointer.y + 50));
-        const d = Math.hypot(tx2 - K.x, ty - K.y);
+        const d = Math.hypot(tx - K.x, ty - K.y);
         if (d > 46) {
           want = d > 150 ? 3.3 : 1.6;
         } else {
@@ -1857,9 +1827,9 @@ var __spreadValues = (a, b) => {
       } else if (K.mode === "chase") {
         if (!K.tgt || now > K.tgtUntil || !flies.includes(K.tgt)) pickTarget(now);
         if (K.tgt) {
-          tx2 = Math.max(minX, Math.min(maxX, K.tgt.x));
+          tx = Math.max(minX, Math.min(maxX, K.tgt.x));
           ty = Math.max(minY, Math.min(maxY, K.tgt.y + 46));
-          const bd = Math.hypot(K.tgt.x - K.x, K.tgt.y - K.y), d = Math.hypot(tx2 - K.x, ty - K.y);
+          const bd = Math.hypot(K.tgt.x - K.x, K.tgt.y - K.y), d = Math.hypot(tx - K.x, ty - K.y);
           want = d > 40 ? SMALL() ? 2.6 : 3 : 0;
           if (!want) pose = "crouch";
           if (bd < 110) {
@@ -1881,9 +1851,9 @@ var __spreadValues = (a, b) => {
           K.until = now + 3e3 + Math.random() * 3e3;
         }
       } else if (K.mode === "walk") {
-        tx2 = K.wx;
+        tx = K.wx;
         ty = K.wy;
-        const d = Math.hypot(tx2 - K.x, ty - K.y);
+        const d = Math.hypot(tx - K.x, ty - K.y);
         want = d > 8 ? K.wspeed || 1 : 0;
         if (!want) pose = "stand";
         if (d <= 8 || now > K.until) {
@@ -1938,7 +1908,7 @@ var __spreadValues = (a, b) => {
         }
       }
       if (want > 0) {
-        const dx = tx2 - K.x, dy = ty - K.y, d = Math.hypot(dx, dy) || 1;
+        const dx = tx - K.x, dy = ty - K.y, d = Math.hypot(dx, dy) || 1;
         K.vx += (dx / d * want - K.vx) * 0.06 * dt;
         K.vy += (dy / d * want - K.vy) * 0.06 * dt;
       } else {
@@ -2252,156 +2222,6 @@ var __spreadValues = (a, b) => {
     enter();
   }
 })();
-{
-  let tx2 = function(n) {
-    if (skip(n)) return;
-    let o = orig.get(n);
-    const v = n.nodeValue;
-    if (o === void 0 || v !== o.th && v !== o.en) {
-      const k = v.trim();
-      o = { th: v, en: k in D ? v.replace(k, D[k]) : v };
-      orig.set(n, o);
-    }
-    const want = L === "en" ? o.en : o.th;
-    if (v !== want) n.nodeValue = want;
-  }, ta2 = function(el, a) {
-    const v = el.getAttribute(a);
-    if (v == null) return;
-    let m = oattr.get(el);
-    if (!m) {
-      m = {};
-      oattr.set(el, m);
-    }
-    let o = m[a];
-    if (!o || v !== o.th && v !== o.en) {
-      o = { th: v, en: D[v.trim()] != null ? D[v.trim()] : v };
-      m[a] = o;
-    }
-    const want = L === "en" ? o.en : o.th;
-    if (v !== want) el.setAttribute(a, want);
-  }, walk2 = function(root) {
-    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n2) => /[฀-๿]|[A-Za-z]/.test(n2.nodeValue) ? 1 : 2 });
-    let n;
-    while (n = w.nextNode()) tx2(n);
-    (root.querySelectorAll ? root : document).querySelectorAll("[placeholder],[aria-label],[alt]").forEach((el) => ["placeholder", "aria-label", "alt"].forEach((a) => ta2(el, a)));
-  }, set2 = function(l) {
-    L = l;
-    document.documentElement.lang = l;
-    document.documentElement.classList.toggle("en", l === "en");
-    busy = true;
-    walk2(document.body);
-    busy = false;
-    if (window.__arcText) window.__arcText(NAMES[l]);
-    document.querySelectorAll(".langsw button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.l === l));
-    try {
-      localStorage.setItem("ps-lang", l);
-    } catch (e) {
-    }
-  };
-  var tx = tx2, ta = ta2, walk = walk2, set = set2;
-  const D = {
-    "\u0E27\u0E31\u0E19": "Days",
-    "\u0E0A\u0E31\u0E48\u0E27\u0E42\u0E21\u0E07": "Hours",
-    "\u0E19\u0E32\u0E17\u0E35": "Minutes",
-    "\u0E27\u0E34\u0E19\u0E32\u0E17\u0E35": "Seconds",
-    "\u0E2E\u0E31\u0E08\u0E0D\u0E35 \u0E14\u0E23.\u0E18\u0E07\u0E0A\u0E31\u0E22 \u0E1B\u0E34\u0E15\u0E34\u0E40\u0E28\u0E23\u0E29\u0E10 & \u0E2E\u0E31\u0E08\u0E0D\u0E30\u0E2E\u0E4C \u0E1C\u0E38\u0E2A\u0E14\u0E35 \u0E1B\u0E34\u0E15\u0E34\u0E40\u0E28\u0E23\u0E29\u0E10": "Haji Dr. Thongchai Pitiset & Hajjah Phutsadi Pitiset",
-    "\u0E19\u0E32\u0E22 \u0E20\u0E39\u0E23\u0E34\u0E1E\u0E31\u0E17\u0E18\u0E4C \u0E1E\u0E36\u0E48\u0E07\u0E41\u0E25\u0E30 & \u0E19\u0E32\u0E07 \u0E42\u0E2A\u0E20\u0E32 \u0E2B\u0E27\u0E07": "Mr. Phuriphat Phuengla & Mrs. Sopha Huang",
-    "\u0E21\u0E35\u0E04\u0E27\u0E32\u0E21\u0E22\u0E34\u0E19\u0E14\u0E35\u0E02\u0E2D\u0E40\u0E23\u0E35\u0E22\u0E19\u0E40\u0E0A\u0E34\u0E0D\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E1B\u0E47\u0E19\u0E40\u0E01\u0E35\u0E22\u0E23\u0E15\u0E34": "request the honour of your presence",
-    "\u0E41\u0E25\u0E30\u0E23\u0E48\u0E27\u0E21\u0E23\u0E31\u0E1A\u0E1B\u0E23\u0E30\u0E17\u0E32\u0E19\u0E2D\u0E32\u0E2B\u0E32\u0E23 \u0E43\u0E19\u0E07\u0E32\u0E19\u0E1E\u0E34\u0E18\u0E35 \u0E19\u0E34\u0E01\u0E30\u0E2B\u0E4C\u0E41\u0E25\u0E30\u0E27\u0E32\u0E25\u0E35\u0E21\u0E30\u0E2E\u0E4C": "and the pleasure of your company at the Nikah & Walimah",
-    "\u0E27\u0E31\u0E19\u0E2D\u0E32\u0E17\u0E34\u0E15\u0E22\u0E4C\u0E17\u0E35\u0E48 13 \u0E18\u0E31\u0E19\u0E27\u0E32\u0E04\u0E21 2569": "Sunday, 13 December 2026",
-    "\u0E13 \u0E21\u0E39\u0E19\u0E2A\u0E15\u0E32\u0E23\u0E4C \u0E04\u0E2D\u0E19\u0E40\u0E27\u0E19\u0E0A\u0E31\u0E48\u0E19 \u0E2E\u0E2D\u0E25\u0E25\u0E4C": "at Moonstar Convention Hall",
-    "(\u0E02\u0E2D\u0E2D\u0E20\u0E31\u0E22\u0E2B\u0E32\u0E01\u0E21\u0E34\u0E44\u0E14\u0E49\u0E40\u0E23\u0E35\u0E22\u0E19\u0E40\u0E0A\u0E34\u0E0D\u0E14\u0E49\u0E27\u0E22\u0E15\u0E19\u0E40\u0E2D\u0E07)": "(Please accept this card in lieu of a personal invitation)",
-    "\u0E01\u0E33\u0E2B\u0E19\u0E14\u0E01\u0E32\u0E23": "",
-    "\u0E42\u0E17\u0E19\u0E2A\u0E35\u0E02\u0E2D\u0E07\u0E07\u0E32\u0E19": "",
-    "\u0E19.": "",
-    "\u0E1E\u0E34\u0E18\u0E35\u0E19\u0E34\u0E01\u0E30\u0E2B\u0E4C": "Nikah Ceremony",
-    "(\u0E1E\u0E34\u0E18\u0E35\u0E2A\u0E21\u0E23\u0E2A)": "(Marriage Rite)",
-    "\u0E1E\u0E34\u0E18\u0E35\u0E2A\u0E27\u0E21\u0E41\u0E2B\u0E27\u0E19": "Ring Exchange",
-    "\u0E23\u0E31\u0E1A\u0E1B\u0E23\u0E30\u0E17\u0E32\u0E19\u0E2D\u0E32\u0E2B\u0E32\u0E23": "Lunch",
-    "\u0E01\u0E25\u0E48\u0E32\u0E27\u0E2D\u0E27\u0E22\u0E1E\u0E23": "Blessings for",
-    "\u0E40\u0E08\u0E49\u0E32\u0E1A\u0E48\u0E32\u0E27\u0E40\u0E08\u0E49\u0E32\u0E2A\u0E32\u0E27": "the Bride & Groom",
-    "\u0E07\u0E32\u0E19\u0E40\u0E25\u0E35\u0E49\u0E22\u0E07\u0E09\u0E25\u0E2D\u0E07": "Wedding",
-    "\u0E21\u0E07\u0E04\u0E25\u0E2A\u0E21\u0E23\u0E2A": "Reception",
-    "(\u0E27\u0E32\u0E25\u0E35\u0E21\u0E30\u0E2E\u0E4C)": "(Walimah)",
-    "\u0E16\u0E48\u0E32\u0E22\u0E20\u0E32\u0E1E\u0E23\u0E48\u0E27\u0E21\u0E01\u0E31\u0E1A": "Photos with",
-    "\u0E08\u0E1A\u0E07\u0E32\u0E19": "End of Celebration",
-    "\u0E21\u0E39\u0E19\u0E2A\u0E15\u0E32\u0E23\u0E4C \u0E04\u0E2D\u0E19\u0E40\u0E27\u0E19\u0E0A\u0E31\u0E48\u0E19 \u0E2E\u0E2D\u0E25\u0E25\u0E4C": "Moonstar Convention Hall",
-    "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E15\u0E2D\u0E1A\u0E01\u0E25\u0E31\u0E1A\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E01\u0E32\u0E23\u0E40\u0E02\u0E49\u0E32\u0E23\u0E48\u0E27\u0E21\u0E07\u0E32\u0E19": "Kindly reply to confirm your attendance",
-    "1. \u0E0A\u0E37\u0E48\u0E2D - \u0E19\u0E32\u0E21\u0E2A\u0E01\u0E38\u0E25": "1. Full name",
-    "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E01\u0E23\u0E2D\u0E01\u0E0A\u0E37\u0E48\u0E2D - \u0E19\u0E32\u0E21\u0E2A\u0E01\u0E38\u0E25": "Please enter your name",
-    "2. \u0E04\u0E27\u0E32\u0E21\u0E2A\u0E31\u0E21\u0E1E\u0E31\u0E19\u0E18\u0E4C\u0E01\u0E31\u0E1A\u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27": "2. Relationship to the couple",
-    "\u0E41\u0E02\u0E01\u0E1C\u0E39\u0E49\u0E43\u0E2B\u0E0D\u0E48": "Honoured guest",
-    "\u0E1E\u0E19\u0E31\u0E01\u0E07\u0E32\u0E19 TCG": "TCG staff",
-    "\u0E0D\u0E32\u0E15\u0E34\u0E1D\u0E31\u0E48\u0E07\u0E40\u0E08\u0E49\u0E32\u0E1A\u0E48\u0E32\u0E27": "Groom's family",
-    "\u0E0D\u0E32\u0E15\u0E34\u0E1D\u0E31\u0E48\u0E07\u0E40\u0E08\u0E49\u0E32\u0E2A\u0E32\u0E27": "Bride's family",
-    "\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E19\u0E40\u0E08\u0E49\u0E32\u0E1A\u0E48\u0E32\u0E27": "Groom's friend",
-    "\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E19\u0E40\u0E08\u0E49\u0E32\u0E2A\u0E32\u0E27": "Bride's friend",
-    "\u0E2D\u0E37\u0E48\u0E19\u0E46 (\u0E42\u0E1B\u0E23\u0E14\u0E23\u0E30\u0E1A\u0E38)": "Other (please specify)",
-    "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E04\u0E27\u0E32\u0E21\u0E2A\u0E31\u0E21\u0E1E\u0E31\u0E19\u0E18\u0E4C": "Please choose one",
-    "3. \u0E01\u0E32\u0E23\u0E40\u0E14\u0E34\u0E19\u0E17\u0E32\u0E07\u0E21\u0E32\u0E23\u0E48\u0E27\u0E21\u0E07\u0E32\u0E19": "3. Will you attend?",
-    "\u0E22\u0E34\u0E19\u0E14\u0E35\u0E21\u0E32\u0E23\u0E48\u0E27\u0E21\u0E07\u0E32\u0E19": "Joyfully accept",
-    "\u0E44\u0E21\u0E48\u0E2A\u0E30\u0E14\u0E27\u0E01\u0E21\u0E32\u0E23\u0E48\u0E27\u0E21\u0E07\u0E32\u0E19": "Regretfully decline",
-    "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E01\u0E32\u0E23\u0E40\u0E14\u0E34\u0E19\u0E17\u0E32\u0E07\u0E21\u0E32\u0E23\u0E48\u0E27\u0E21\u0E07\u0E32\u0E19": "Please choose one",
-    "4. \u0E08\u0E33\u0E19\u0E27\u0E19\u0E1C\u0E39\u0E49\u0E21\u0E32\u0E23\u0E48\u0E27\u0E21\u0E07\u0E32\u0E19 (\u0E23\u0E27\u0E21\u0E15\u0E31\u0E27\u0E17\u0E48\u0E32\u0E19)": "4. Number of guests (including you)",
-    "5. \u0E40\u0E1A\u0E2D\u0E23\u0E4C\u0E42\u0E17\u0E23\u0E28\u0E31\u0E1E\u0E17\u0E4C\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E15\u0E34\u0E14\u0E15\u0E48\u0E2D": "5. Phone number",
-    "6. \u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E2D\u0E27\u0E22\u0E1E\u0E23\u0E16\u0E36\u0E07\u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27": "6. Wishes for the couple",
-    "\u0E2A\u0E48\u0E07\u0E04\u0E33\u0E15\u0E2D\u0E1A": "Send reply",
-    "\u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E04\u0E33\u0E15\u0E2D\u0E1A \u0E01\u0E14\u0E2A\u0E48\u0E07\u0E1C\u0E48\u0E32\u0E19 LINE \u0E41\u0E25\u0E49\u0E27\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E41\u0E0A\u0E17\u0E02\u0E2D\u0E07\u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27 \u0E2B\u0E23\u0E37\u0E2D\u0E04\u0E31\u0E14\u0E25\u0E2D\u0E01\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E44\u0E1B\u0E2A\u0E48\u0E07\u0E40\u0E2D\u0E07\u0E44\u0E14\u0E49\u0E40\u0E25\u0E22": "Thank you! Send it via LINE to the couple, or copy the message.",
-    "\u0E22\u0E37\u0E19\u0E22\u0E31\u0E19\u0E2A\u0E48\u0E07\u0E04\u0E33\u0E15\u0E2D\u0E1A": "Confirm reply",
-    "\u0E2A\u0E48\u0E07\u0E1C\u0E48\u0E32\u0E19 LINE": "Send via LINE",
-    "\u0E04\u0E31\u0E14\u0E25\u0E2D\u0E01\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21": "Copy message",
-    "\u0E41\u0E01\u0E49\u0E44\u0E02\u0E04\u0E33\u0E15\u0E2D\u0E1A": "Edit reply",
-    "\u0E04\u0E31\u0E14\u0E25\u0E2D\u0E01\u0E41\u0E25\u0E49\u0E27": "Copied",
-    "\u0E0A\u0E37\u0E48\u0E2D - \u0E19\u0E32\u0E21\u0E2A\u0E01\u0E38\u0E25": "Full name",
-    "\u0E42\u0E1B\u0E23\u0E14\u0E23\u0E30\u0E1A\u0E38": "Please specify",
-    "\u0E40\u0E1A\u0E2D\u0E23\u0E4C\u0E42\u0E17\u0E23\u0E28\u0E31\u0E1E\u0E17\u0E4C": "Phone number",
-    "\u0E40\u0E02\u0E35\u0E22\u0E19\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E2D\u0E27\u0E22\u0E1E\u0E23...": "Write your wishes...",
-    "\u0E41\u0E15\u0E30\u0E15\u0E23\u0E32\u0E1B\u0E23\u0E30\u0E17\u0E31\u0E1A\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E40\u0E1B\u0E34\u0E14\u0E01\u0E32\u0E23\u0E4C\u0E14\u0E40\u0E0A\u0E34\u0E0D": "Tap the seal to open the invitation",
-    "\u0E19\u0E31\u0E1A\u0E16\u0E2D\u0E22\u0E2B\u0E25\u0E31\u0E07\u0E16\u0E36\u0E07\u0E27\u0E31\u0E19\u0E07\u0E32\u0E19": "Countdown to the wedding",
-    "\u0E40\u0E1B\u0E34\u0E14\u0E40\u0E1E\u0E25\u0E07": "Play music",
-    "\u0E1B\u0E34\u0E14\u0E40\u0E1E\u0E25\u0E07": "Pause music",
-    "\u0E01\u0E33\u0E25\u0E31\u0E07\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u2026": "Saving\u2026",
-    "\u2713 \u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E04\u0E33\u0E15\u0E2D\u0E1A\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E40\u0E23\u0E35\u0E22\u0E1A\u0E23\u0E49\u0E2D\u0E22\u0E41\u0E25\u0E49\u0E27": "\u2713 Your reply has been saved",
-    "\u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E04\u0E33\u0E15\u0E2D\u0E1A \u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25\u0E02\u0E2D\u0E07\u0E04\u0E38\u0E13\u0E41\u0E25\u0E49\u0E27": "Thank you, the couple has received your reply.",
-    "\u0E02\u0E2D\u0E1A\u0E04\u0E38\u0E13\u0E2A\u0E33\u0E2B\u0E23\u0E31\u0E1A\u0E04\u0E33\u0E15\u0E2D\u0E1A\u0E04\u0E48\u0E30": "Thank you for your reply",
-    "\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E43\u0E2B\u0E49\u0E41\u0E19\u0E48\u0E43\u0E08\u0E27\u0E48\u0E32\u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27\u0E44\u0E14\u0E49\u0E23\u0E31\u0E1A \u0E01\u0E23\u0E38\u0E13\u0E32\u0E01\u0E14\u0E2A\u0E48\u0E07\u0E1C\u0E48\u0E32\u0E19 LINE \u0E44\u0E1B\u0E17\u0E35\u0E48\u0E41\u0E0A\u0E17\u0E02\u0E2D\u0E07\u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27\u0E2D\u0E35\u0E01\u0E04\u0E23\u0E31\u0E49\u0E07": "To be sure the couple receives it, please also send it via LINE.",
-    "\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E2D\u0E31\u0E15\u0E42\u0E19\u0E21\u0E31\u0E15\u0E34\u0E44\u0E21\u0E48\u0E2A\u0E33\u0E40\u0E23\u0E47\u0E08": "Could not save automatically",
-    "\u0E01\u0E23\u0E38\u0E13\u0E32\u0E01\u0E14\u0E2A\u0E48\u0E07\u0E1C\u0E48\u0E32\u0E19 LINE \u0E41\u0E25\u0E49\u0E27\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E41\u0E0A\u0E17\u0E02\u0E2D\u0E07\u0E04\u0E39\u0E48\u0E1A\u0E48\u0E32\u0E27\u0E2A\u0E32\u0E27 \u0E2B\u0E23\u0E37\u0E2D\u0E04\u0E31\u0E14\u0E25\u0E2D\u0E01\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E44\u0E1B\u0E2A\u0E48\u0E07\u0E40\u0E2D\u0E07": "Please send via LINE to the couple, or copy the message.",
-    "\u0E40\u0E25\u0E37\u0E2D\u0E01\u0E02\u0E49\u0E2D\u0E04\u0E27\u0E32\u0E21\u0E41\u0E25\u0E49\u0E27 \u0E01\u0E14\u0E04\u0E31\u0E14\u0E25\u0E2D\u0E01\u0E44\u0E14\u0E49\u0E40\u0E25\u0E22": "Text selected, copy it now",
-    "\u0E20\u0E32\u0E1E\u0E27\u0E32\u0E14\u0E2D\u0E32\u0E04\u0E32\u0E23\u0E2A\u0E16\u0E32\u0E19\u0E17\u0E35\u0E48\u0E08\u0E31\u0E14\u0E07\u0E32\u0E19 \u0E1E\u0E23\u0E49\u0E2D\u0E21\u0E19\u0E49\u0E33\u0E1E\u0E38\u0E14\u0E49\u0E32\u0E19\u0E2B\u0E19\u0E49\u0E32": "Painting of the venue with its fountain",
-    "\u0E01\u0E23\u0E2D\u0E1A\u0E14\u0E2D\u0E01\u0E44\u0E21\u0E49\u0E1E\u0E23\u0E49\u0E2D\u0E21\u0E2D\u0E31\u0E01\u0E29\u0E23\u0E22\u0E48\u0E2D P & S": "Floral frame with P & S monogram"
-  };
-  const NAMES = { th: ["\u0E1B\u0E13\u0E32\u0E25\u0E35 (\u0E2A\u0E38\u0E23\u0E2D\u0E22\u0E0D\u0E32) \u0E1B\u0E34\u0E15\u0E34\u0E40\u0E28\u0E23\u0E29\u0E10", "\u0E2A\u0E2B\u0E23\u0E31\u0E10 (\u0E1F\u0E32\u0E2E\u0E31\u0E15) \u0E1E\u0E36\u0E48\u0E07\u0E41\u0E25\u0E30"], en: ["Panalee (Suraiya) Pitiset", "Saharat (Fahad) Phuengla"] };
-  const orig = /* @__PURE__ */ new WeakMap(), oattr = /* @__PURE__ */ new WeakMap();
-  let L = "th";
-  const skip = (n) => n.parentNode && n.parentNode.closest && n.parentNode.closest("script,style,.arc,#summary");
-  let busy = false;
-  const mo = new MutationObserver((ms) => {
-    if (busy) return;
-    busy = true;
-    for (const m of ms) {
-      if (m.type === "characterData") tx2(m.target);
-      else if (m.type === "attributes") ta2(m.target, m.attributeName);
-      else m.addedNodes.forEach((x) => x.nodeType === 3 ? tx2(x) : x.nodeType === 1 && walk2(x));
-    }
-    busy = false;
-  });
-  const sw = document.createElement("div");
-  sw.className = "langsw";
-  sw.innerHTML = '<button type="button" data-l="th">TH</button><button type="button" data-l="en">EN</button>';
-  document.body.appendChild(sw);
-  sw.addEventListener("click", (e) => {
-    const b = e.target.closest("button");
-    if (b) set2(b.dataset.l);
-  });
-  let start = "th";
-  try {
-    start = localStorage.getItem("ps-lang") || ((navigator.language || "th").toLowerCase().startsWith("th") ? "th" : "en");
-  } catch (e) {
-  }
-  mo.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["placeholder", "aria-label", "alt"] });
-  set2(start);
-}
 </script>
 
 </body>
